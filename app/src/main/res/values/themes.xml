@@ -1,0 +1,6 @@
+<resources>
+    <style name="Theme.Tinyping" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">#FFF4F8</item>
+        <item name="android:statusBarColor">#FF6FAE</item>
+    </style>
+</resources>
