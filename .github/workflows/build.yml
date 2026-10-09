@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '17' }
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: '8.9' }
@@ -20,7 +20,12 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses >/dev/null 2>&1 || true
           keytool -genkeypair -v -keystore keystore/tinyping.jks -alias tinyping -keyalg RSA -keysize 2048 -validity 10000 -storepass tinyping -keypass tinyping -dname "CN=Tinyping, O=Home, C=KR"
       - name: Build
-        run: gradle assembleRelease --no-daemon
+        run: |
+          set -o pipefail
+          gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee build.log || {
+            grep -n -E "error|What went wrong|Exception|FAILED" build.log | head -40 | while IFS= read -r l; do echo "::error::$l"; done
+            exit 1
+          }
       - name: Rename
         run: cp app/build/outputs/apk/release/app-release.apk 티니핑색칠놀이.apk
       - uses: actions/upload-artifact@v4
